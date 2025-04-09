@@ -1,0 +1,5 @@
+package com.bankapp.banking_system.Controllers;
+
+public class AuthController {
+
+}

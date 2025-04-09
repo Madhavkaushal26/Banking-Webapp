@@ -1,0 +1,41 @@
+package com.bankapp.banking_system.ServiceImpl;
+
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.bankapp.banking_system.Repository.CustKYC_Repo;
+import com.bankapp.banking_system.Service.CustKYC_Service;
+import com.bankapp.banking_system.entities.CustKYC;
+
+public class CustKYC_ServImpl implements CustKYC_Service {
+	
+	@Autowired
+	private CustKYC_Repo custkycRepo;
+
+	@Override
+	public CustKYC saveKYC(CustKYC customerKYC) {
+
+		return custkycRepo.save(customerKYC);
+	}
+
+	@Override
+	public Optional<CustKYC> getKYCById(Long id) {
+		
+		return custkycRepo.findById(id);
+	}
+
+	@Override
+	public Optional<CustKYC> getKYCByCustomerAadhar(String aadharId) {
+		
+		return custkycRepo.findByAadharId(aadharId);
+	}
+
+	@Override
+	public void deleteKYC(Long id) {
+		
+		custkycRepo.deleteById(id);
+
+	}
+
+}

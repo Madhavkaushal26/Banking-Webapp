@@ -1,0 +1,8 @@
+package com.bankapp.banking_system.utils;
+
+public class UnauthorizedAccessException extends RuntimeException {
+	public UnauthorizedAccessException(String message) {
+        super(message);
+    }
+
+}

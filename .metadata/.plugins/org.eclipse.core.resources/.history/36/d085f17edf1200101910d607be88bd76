@@ -1,0 +1,65 @@
+package com.bankapp.banking_system.Controllers;
+
+import java.util.Optional;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.bankapp.banking_system.Service.CustKYC_Service;
+import com.bankapp.banking_system.entities.CustKYC;
+
+@RestController
+@RequestMapping("/api/kyc")
+public class CustKYC_Controller {
+	
+	private final CustKYC_Service kycService;
+
+    public CustKYC_Controller(CustKYC_Service kycService) {
+        this.kycService = kycService;
+    }
+
+    // Add KYC details
+    @PostMapping("/register")
+    public ResponseEntity<CustKYC> addKYC(@RequestBody CustKYC kyc) {
+        CustKYC savedKYC = kycService.saveKYC(kyc);
+        return ResponseEntity.ok(savedKYC);
+    }
+
+    // Get KYC details by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<CustKYC> getKYCById(@PathVariable Long id) {
+        Optional<CustKYC> kyc = kycService.getKYCById(id);
+        return kyc.map(ResponseEntity::ok)
+                  .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Get KYC details by customer ID
+    @GetMapping("/customer/{aadharId}")
+    public ResponseEntity<CustKYC> getKYCByCustomer(@PathVariable String aadharId) {
+        Optional<CustKYC> kyc = kycService.getKYCByCustomerAadhar(aadharId);
+        return kyc.map(ResponseEntity::ok)
+                  .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Update KYC details
+    @PutMapping("/{id}")
+    public ResponseEntity<CustKYC> updateKYC(@PathVariable Long id, @RequestBody CustKYC updatedKYC) {
+        CustKYC kyc = kycService.updateKYC(id, updatedKYC);
+        return ResponseEntity.ok(kyc);
+    }
+
+    // Delete KYC record
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteKYC(@PathVariable Long id) {
+        kycService.deleteKYC(id);
+        return ResponseEntity.noContent().build();
+    }
+
+}

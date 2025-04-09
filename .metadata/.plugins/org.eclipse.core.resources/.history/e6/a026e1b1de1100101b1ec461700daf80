@@ -1,0 +1,54 @@
+package com.bankapp.banking_system.Controllers;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.bankapp.banking_system.Service.OfferRewardService;
+import com.bankapp.banking_system.entities.OfferandReward;
+
+@RestController
+@RequestMapping("/api/offers")
+public class OfferRewardController {
+	
+	@Autowired
+    private OfferRewardService offerRewardService;
+
+    // Add a new offer
+    @PostMapping
+    public ResponseEntity<OfferandReward> createOffer(@RequestBody OfferandReward offer) {
+        OfferandReward savedOffer = offerRewardService.saveOffer(offer);
+        return ResponseEntity.ok(savedOffer);
+    }
+
+    // Get an offer by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<OfferandReward> getOfferById(@PathVariable Long id) {
+        Optional<OfferandReward> offer = offerRewardService.getOfferById(id);
+        return offer.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Get all offers
+    @GetMapping
+    public ResponseEntity<List<OfferandReward>> getAllOffers() {
+        List<OfferandReward> offers = offerRewardService.getAllOffers();
+        return ResponseEntity.ok(offers);
+    }
+
+    // Delete an offer
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteOffer(@PathVariable Long id) {
+        offerRewardService.deleteOffer(id);
+        return ResponseEntity.noContent().build();
+    }
+
+}

@@ -1,0 +1,56 @@
+package com.bankapp.banking_system.entities;
+
+import java.util.List;
+
+import com.bankapp.banking_system.utils.IdGenerator;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.Data;
+
+@Entity
+@Table(name = "employees")
+@Data
+public class Employee {
+
+	@Id
+    @Column(name = "employeeId", nullable = false, unique = true)
+    private String employeeId;
+	
+	@Column(name = "Fname")
+    private String fullName;
+
+    @Column(name = "Dob")
+    private String dob;
+
+    @Column(name = "gender")
+    private String gender;
+
+    @Column(name = "Nationality")
+    private String nationality;
+
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EmpContact> contacts;
+
+    @Column(nullable = false)
+    private String password;
+    
+    @PrePersist
+    public void setemployeeId() {
+        if (this.employeeId == null) {
+            this.employeeId = IdGenerator.generateEmployeeId();
+        }
+    }
+
+    // Optional for future use:
+    // @Column(name = "role")
+    // private String role;
+    
+   
+
+}

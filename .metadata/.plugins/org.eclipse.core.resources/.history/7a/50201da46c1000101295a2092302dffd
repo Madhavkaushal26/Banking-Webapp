@@ -1,0 +1,84 @@
+package com.bankapp.banking_system.ServiceImpl;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.bankapp.banking_system.Repository.CustAccRepo;
+import com.bankapp.banking_system.Repository.TransactionRepo;
+import com.bankapp.banking_system.Service.TransactionService;
+import com.bankapp.banking_system.entities.CustAccount;
+import com.bankapp.banking_system.entities.Transactions;
+
+import jakarta.transaction.Transactional;
+
+
+@Service 
+public class TransactionServImpl implements TransactionService {
+	
+	@Autowired
+	private TransactionRepo transactionRepo;
+	 @Autowired
+	private CustAccRepo custAccRepo;
+	
+	@Override
+	public Transactions saveTransaction(Transactions transaction) {
+		
+		return transactionRepo.save(transaction);
+	}
+
+	@Override
+	public Optional<Transactions> getTransactionById(Long id) {
+		
+		return transactionRepo.findById(id);
+	}
+
+	@Override
+	public List<Transactions> getTransactionsByAccount(Long accountId) {
+        Optional<CustAccount> accountOptional = custAccRepo.findById(accountId);
+
+        if (accountOptional.isPresent()) {
+            CustAccount account = accountOptional.get();
+            return transactionRepo.findByFromAccountOrToAccount(account, account);
+        } else {
+            throw new RuntimeException("Account with ID " + accountId + " not found.");
+        }
+    }
+	@Override
+	public void deleteTransaction(Long id) {
+
+		transactionRepo.deleteById(id);
+
+	}
+	
+	@Transactional
+	public Transactions makeTransaction(Transactions transaction) {
+	    String fromAcc = transaction.getFromAccount();
+	    String toAcc = transaction.getToAccount();
+	    BigDecimal amount = transaction.getAmount();
+
+	    if (!"CASH".equals(fromAcc)) {
+	        CustAccount sender = custAccRepo.findByAccountNumber(fromAcc)
+	                          .orElseThrow(() -> new RuntimeException("Sender account not found"));
+	        if (sender.getBalance().compareTo(amount)<0) {
+	            throw new RuntimeException("Insufficient balance");
+	        }
+	        sender.setBalance(sender.getBalance().subtract(amount));
+	        custAccRepo.save(sender);
+	    }
+
+	    if (!"CASH".equals(toAcc)) {
+	        CustAccount receiver = custAccRepo.findByAccountNumber(toAcc)
+	                          .orElseThrow(() -> new RuntimeException("Receiver account not found"));
+	        receiver.setBalance(receiver.getBalance().add(amount));
+	        custAccRepo.save(receiver);
+	    }
+
+	    return transactionRepo.save(transaction);
+	}
+
+
+}

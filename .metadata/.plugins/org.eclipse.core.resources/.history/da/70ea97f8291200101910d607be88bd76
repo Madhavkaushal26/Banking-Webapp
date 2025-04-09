@@ -1,0 +1,5 @@
+package com.bankapp.banking_system.Repository;
+
+public interface EmpContactRepo {
+
+}

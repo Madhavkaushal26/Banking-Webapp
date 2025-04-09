@@ -1,0 +1,42 @@
+package com.bankapp.banking_system.ServiceImpl;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.bankapp.banking_system.Repository.OfferandRewardRepo;
+import com.bankapp.banking_system.Service.OfferRewardService;
+import com.bankapp.banking_system.entities.OfferandReward;
+
+public class OfferRewardServImpl implements OfferRewardService {
+	
+	@Autowired
+	private OfferandRewardRepo offerrewardRepo;
+
+	@Override
+	public OfferandReward saveOffer(OfferandReward offerReward) {
+		
+		return offerrewardRepo.save(offerReward);
+	}
+
+	@Override
+	public Optional<OfferandReward> getOfferById(Long id) {
+		
+		return offerrewardRepo.findById(id);
+	}
+
+	@Override
+	public List<OfferandReward> getAllOffers() {
+		
+		return offerrewardRepo.findAll();
+	}
+
+	@Override
+	public void deleteOffer(Long id) {
+		
+		offerrewardRepo.deleteById(id);
+
+	}
+
+}

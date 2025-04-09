@@ -1,0 +1,59 @@
+package com.bankapp.banking_system.utils;
+
+import static org.springframework.security.config.Customizer.withDefaults;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+
+
+
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/add-employee").permitAll()
+                .anyRequest().authenticated()
+            )
+            .httpBasic(withDefaults()); // proper way to apply basic auth
+
+        return http.build();
+    }
+
+
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder builder = 
+            http.getSharedObject(AuthenticationManagerBuilder.class);
+
+        builder.userDetailsService(customUserDetailsService)
+               .passwordEncoder(passwordEncoder());
+
+        return builder.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        Argon2PasswordEncoder encoder = new Argon2PasswordEncoder(16, 32, 1, 4096, 3);
+        System.out.println("PasswordEncoder bean created: " + encoder);
+        return encoder;
+    }
+
+
+}

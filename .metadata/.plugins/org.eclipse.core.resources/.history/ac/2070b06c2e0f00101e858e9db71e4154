@@ -1,0 +1,41 @@
+package com.bankapp.banking_system.ServiceImpl;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.bankapp.banking_system.Repository.TransactionRepo;
+import com.bankapp.banking_system.Service.TransactionService;
+import com.bankapp.banking_system.entities.Transactions;
+
+public class TransactionServImpl implements TransactionService {
+	
+	@Autowired
+	private TransactionRepo transactionRepo;
+
+	@Override
+	public Transactions saveTransaction(Transactions transaction) {
+		
+		return transactionRepo.save(transaction);
+	}
+
+	@Override
+	public Optional<Transactions> getTransactionById(Long id) {
+		
+		return transactionRepo.findById(id);
+	}
+
+	@Override
+	public List<Transactions> getTransactionsByAccount(Long accountId) {
+		
+		return ;
+	}
+
+	@Override
+	public void deleteTransaction(Long id) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

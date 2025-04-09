@@ -1,0 +1,65 @@
+package com.bankapp.banking_system.Controllers;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.bankapp.banking_system.Service.CustAccService;
+import com.bankapp.banking_system.entities.CustAccount;
+import com.bankapp.banking_system.utils.UnauthorizedAccessException;
+
+@RestController
+@RequestMapping("/api/accounts")
+public class CustAccController {
+	
+	private final CustAccService custAccService;
+
+    public CustAccController(CustAccService custAccService) {
+        this.custAccService = custAccService;
+    }
+
+    // Create a new account
+    @PostMapping("/create")
+    public ResponseEntity<?> createAccount(@RequestBody CustAccount account) {
+    	try {
+            CustAccount saved = custAccService.saveAccount(account);
+            return ResponseEntity.ok(saved);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage()); // Wrong CustomerId
+        } catch (UnauthorizedAccessException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage()); // KYC Pending
+        }
+    }
+
+    // Get account by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<CustAccount> getAccountById(@PathVariable Long id) {
+        Optional<CustAccount> account = custAccService.getAccountById(id);
+        return account.map(ResponseEntity::ok)
+                      .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // Get all accounts for a specific customer
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<List<CustAccount>> getAccountsByCustomer(@PathVariable String customerId) {
+        List<CustAccount> accounts = custAccService.getAccountsByCustomerId(customerId);
+        return ResponseEntity.ok(accounts);
+    }
+
+    // Delete an account
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAccount(@PathVariable Long id) {
+        custAccService.deleteAccount(id);
+        return ResponseEntity.noContent().build();
+    }
+
+}

@@ -1,0 +1,35 @@
+package com.bankapp.banking_system.ServiceImpl;
+
+import java.util.List;
+import java.util.Optional;
+
+import com.bankapp.banking_system.Service.OfferRewardService;
+import com.bankapp.banking_system.entities.OfferandReward;
+
+public class OfferRewardServImpl implements OfferRewardService {
+
+	@Override
+	public OfferandReward saveOffer(OfferandReward offerReward) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Optional<OfferandReward> getOfferById(Long id) {
+		// TODO Auto-generated method stub
+		return Optional.empty();
+	}
+
+	@Override
+	public List<OfferandReward> getAllOffers() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void deleteOffer(Long id) {
+		// TODO Auto-generated method stub
+
+	}
+
+}
