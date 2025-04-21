@@ -1,54 +1,71 @@
 package com.bankapp.banking_system.utils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-	
-	@Autowired
-    private AuthenticationManager authenticationManager;
-	
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody AuthRequest authRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
-        );
 
-        if (authentication.isAuthenticated()) {
-            return ResponseEntity.ok("Login successful");
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login failed");
-        }
-    }
-    
-    @PostMapping("/customer/login")
-    public ResponseEntity<?> customerLogin(@RequestBody AuthRequest loginRequest) {
+    @Autowired
+    private FinalUserDetails finalUserDetails;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @PostMapping("/employee/login")
+    public ResponseEntity<?> employeeLogin(@RequestBody AuthRequest authRequest) {
         try {
-            Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                    loginRequest.getUsername(),
-                    loginRequest.getPassword()
-                )
-            );
+            UserDetails userDetails = finalUserDetails.loadUserByUsername2(authRequest.getUsername(), "employee");
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            return ResponseEntity.ok("Customer logged in successfully");
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+            if (!passwordEncoder.matches(authRequest.getPassword(), userDetails.getPassword())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
+            }
+
+            UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("username", userDetails.getUsername());
+            response.put("role", "employee");
+            return ResponseEntity.ok(response);
+
+        } catch (UsernameNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         }
     }
 
+    @PostMapping("/customer/login")
+    public ResponseEntity<?> customerLogin(@RequestBody AuthRequest authRequest) {
+        try {
+            UserDetails userDetails = finalUserDetails.loadUserByUsername2(authRequest.getUsername(), "customer");
 
+            if (!passwordEncoder.matches(authRequest.getPassword(), userDetails.getPassword())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid password");
+            }
+
+            UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("username", userDetails.getUsername());
+            response.put("role", "customer");
+            return ResponseEntity.ok(response);
+
+        } catch (UsernameNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+    }
 }

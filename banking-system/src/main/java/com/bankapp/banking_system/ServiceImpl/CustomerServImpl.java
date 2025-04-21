@@ -1,5 +1,6 @@
 package com.bankapp.banking_system.ServiceImpl;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,7 @@ public class CustomerServImpl implements CustomerService {
 	@Override
 	public Customer saveCustomer(Customer customer) {
 		customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+		customer.setJoinDate(LocalDate.now());
         return customerRepo.save(customer);
 	}
 

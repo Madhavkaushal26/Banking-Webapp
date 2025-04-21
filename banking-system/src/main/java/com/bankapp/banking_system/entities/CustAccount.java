@@ -1,16 +1,14 @@
 package com.bankapp.banking_system.entities;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 
-import com.bankapp.banking_system.utils.AccountNumGenerator;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -22,37 +20,40 @@ import lombok.Data;
 @Table(name = "custAccount")
 @Data
 public class CustAccount {
-	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-	
-	@ManyToOne
-	@JoinColumn(name = "customer_id")
-	@JsonBackReference
-	private Customer customer;
-	
-	 @Column(unique = true, nullable = false, length = 14)
-	 private String accountNumber;
-	
-	 @Column(name = "Type", nullable = false)
-	 private String accountType;
-	 
-	 @Column(name = "Balance", nullable = false)
-	 private BigDecimal balance;
-	
-	@Column(name = "nominee")
-	private long nomi_id; // would save customer id of the nominee
-	
-	@PrePersist
-    public void generateAccountNumber() {
-        if (this.accountNumber == null) {
-            this.accountNumber = AccountNumGenerator.generateAccountNumber();
-        }
+
+    @Id
+    @Column(unique = true, nullable = false, length = 14)
+    private String accountNumber;  // Set accountNumber as the primary key
+    
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    @JsonBackReference
+    private Customer customer;
+    
+    @Column(name = "Type", nullable = false)
+    private String accountType;
+    
+    @Column(name = "Balance", nullable = false)
+    private BigDecimal balance;
+    
+    @Column(name = "nominee")
+    private long nomi_id; // would save customer id of the nominee
+    
+    @Column(name = "CreationDate",nullable = false)
+    private LocalDate date;
+    
+    @Column(name = "interest",nullable = false)
+    private int interest;
+    
+    @PrePersist
+    protected void generateAccountNumber() {
+        // The accountNumber is now set manually, so we don't need this anymore.
+        this.date = LocalDate.now();
     }
-	
-	@Column(nullable = false)
+    
+    @Column(nullable = false)
     private String encryptedPin; // Store encrypted PIN
-	private static final Argon2PasswordEncoder encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+    private static final Argon2PasswordEncoder encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
 
     // Setter for PIN (Encryption)
     public void setPin(String pin) {
@@ -65,5 +66,4 @@ public class CustAccount {
     public boolean verifyPin(String rawPin) {
         return encoder.matches(rawPin, this.encryptedPin);
     }
-	
 }

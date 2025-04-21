@@ -1,13 +1,10 @@
 package com.bankapp.banking_system.entities;
 
-import java.util.List;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -36,13 +33,6 @@ public class OfferandReward {
     @Column(nullable = false)
     private String eligibilityCriteria; // Criteria for availing offer
 
-    @Column(nullable = false)
-    private String rewardDetails; // What the reward includes
 
-    @Column(nullable = true)
-    private int durationInDays; // Offer validity duration in days
-
-    @OneToMany(mappedBy = "offerReward")
-    private List<CustOfferAvl> customerOffers;
 
 }

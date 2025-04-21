@@ -1,13 +1,14 @@
 package com.bankapp.banking_system.Service;
 
 import java.util.List;
-import java.util.Optional;
 
+import com.bankapp.banking_system.dto.AccCreationRequest;
 import com.bankapp.banking_system.entities.CustAccount;
+import com.bankapp.banking_system.entities.Customer;
 
 public interface CustAccService {
-	CustAccount saveAccount(CustAccount account);
-    Optional<CustAccount> getAccountById(Long id);
+	CustAccount saveAccount(AccCreationRequest account);
     List<CustAccount> getAccountsByCustomerId(String customerId);
-    void deleteAccount(Long id);	
+    void deleteAccount(Long id);
+	Customer getCustomerByAccountNumber(String accountNumber);	
 }

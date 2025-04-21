@@ -11,8 +11,11 @@ import com.bankapp.banking_system.Service.CustKYC_Service;
 import com.bankapp.banking_system.entities.CustKYC;
 import com.bankapp.banking_system.entities.Customer;
 
+import jakarta.transaction.Transactional;
+
 
 @Service 
+@Transactional
 public class CustKYC_ServImpl implements CustKYC_Service {
 	
 	@Autowired
@@ -29,9 +32,14 @@ public class CustKYC_ServImpl implements CustKYC_Service {
 		
 		customerKYC.setCustomer(customer);
 		
+		customer.setKyc(customerKYC);
 		customer.setKycStatus("Y");
 		
-		return custkycRepo.save(customerKYC);
+		CustKYC savedKYC = custkycRepo.save(customerKYC);
+		
+		customerRepo.save(customer);
+		
+		return savedKYC;
 	}
 
 	@Override

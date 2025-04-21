@@ -6,26 +6,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.bankapp.banking_system.Repository.EmployeeRepo;
 import com.bankapp.banking_system.entities.Employee;
 
-@Service
+@Component
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
+    @Autowired	
     private EmployeeRepo employeeRepository;
 
     @Override
     public UserDetails loadUserByUsername(String employeeId) throws UsernameNotFoundException {
-        Employee employee = employeeRepository.findByEmployeeId(employeeId)
-                .orElseThrow(() -> new UsernameNotFoundException("Employee not found with ID: " + employeeId));
-
-        return new org.springframework.security.core.userdetails.User(
+    	Employee employee = employeeRepository.findById(employeeId)
+    	        .orElseThrow(() -> {
+    	            return new UsernameNotFoundException("User not found: " + employeeId);
+    	        });
+    	return new org.springframework.security.core.userdetails.User(
                 employee.getEmployeeId(),
                 employee.getPassword(),
-                new ArrayList<>() // no authorities for now
-        );
-    }
+                new ArrayList<>()
+            );
+    	}
 }

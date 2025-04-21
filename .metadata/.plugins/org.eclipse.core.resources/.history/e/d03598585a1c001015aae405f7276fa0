@@ -1,0 +1,61 @@
+package com.bankapp.banking_system.utils;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import static org.springframework.security.config.Customizer.withDefaults;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/auth/**", "/add-employee").permitAll() // allow auth endpoints
+                .anyRequest().authenticated()
+            )
+            .httpBasic(withDefaults());
+
+        return http.build();
+    }
+
+    @Bean(name = "employeeAuthenticationManager")
+    public AuthenticationManager employeeAuthenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        builder.userDetailsService(customUserDetailsService())
+               .passwordEncoder(passwordEncoder());
+        return builder.build();
+    }
+
+    @Bean(name = "customerAuthenticationManager")
+    public AuthenticationManager customerAuthenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        builder.userDetailsService(customerUserDetailsService())
+               .passwordEncoder(passwordEncoder());
+        return builder.build();
+    }
+
+    @Bean
+    public CustomUserDetailsService customUserDetailsService() {
+        return new CustomUserDetailsService();
+    }
+
+    @Bean
+    public CustomerUserDetailsService customerUserDetailsService() {
+        return new CustomerUserDetailsService();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new Argon2PasswordEncoder(16, 32, 1, 4096, 3);
+    }
+}

@@ -1,0 +1,15 @@
+package com.bankapp.banking_system.dto;
+
+import lombok.Data;
+
+@Data
+public class AccCreationRequest {
+	
+	private String customerId;
+    private String accountType;
+    private double balance;
+    private int nomi_id;
+    private String pin;
+    private String pass;
+
+}

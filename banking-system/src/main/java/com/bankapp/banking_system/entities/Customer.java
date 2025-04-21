@@ -1,7 +1,7 @@
 package com.bankapp.banking_system.entities;
 
 import java.util.List;
-
+import java.time.LocalDate;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 
 import com.bankapp.banking_system.utils.IdGenerator;
@@ -35,6 +35,10 @@ public class Customer {
     private String gender;
 	@Column(name = "Nationality")
     private String nationality;
+	
+
+	@Column(name = "join_date", nullable = false)
+	private LocalDate joinDate;
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL,orphanRemoval = true)
     @JsonManagedReference

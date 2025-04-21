@@ -3,6 +3,7 @@ package com.bankapp.banking_system.entities;
 import java.util.List;
 
 import com.bankapp.banking_system.utils.IdGenerator;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -35,13 +36,14 @@ public class Employee {
     private String nationality;
 
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<EmpContact> contacts;
 
     @Column(nullable = false)
     private String password;
     
     @PrePersist
-    public void setemployeeId() {
+    public void OnCreate() {
         if (this.employeeId == null) {
             this.employeeId = IdGenerator.generateEmployeeId();
         }

@@ -1,0 +1,124 @@
+package com.bankapp.banking_system.ServiceImpl;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.bankapp.banking_system.Repository.CustAccRepo;
+import com.bankapp.banking_system.Repository.CustOfferRepo;
+import com.bankapp.banking_system.Repository.TransactionRepo;
+import com.bankapp.banking_system.Service.TransactionService;
+import com.bankapp.banking_system.entities.CustAccount;
+import com.bankapp.banking_system.entities.CustOfferAvl;
+import com.bankapp.banking_system.entities.OfferandReward;
+import com.bankapp.banking_system.entities.Transactions;
+
+import jakarta.transaction.Transactional;
+
+
+@Service 
+public class TransactionServImpl implements TransactionService {
+	
+	@Autowired
+	private TransactionRepo transactionRepo;
+	 @Autowired
+	private CustAccRepo custAccRepo;
+	 
+	@Autowired
+	private CustOfferRepo custOfferRepo;
+	
+	@Override
+	public Transactions saveTransaction(Transactions transaction) {
+		
+		return transactionRepo.save(transaction);
+	}
+
+	@Override
+	public Optional<Transactions> getTransactionById(Long id) {
+		
+		return transactionRepo.findById(id);
+	}
+
+	@Override
+	public List<Transactions> getTransactionsByAccount(Long accountId) {
+        Optional<CustAccount> accountOptional = custAccRepo.findById(accountId);
+
+        if (accountOptional.isPresent()) {
+            CustAccount account = accountOptional.get();
+            return transactionRepo.findByFromAccountOrToAccount(account, account);
+        } else {
+            throw new RuntimeException("Account with ID " + accountId + " not found.");
+        }
+    }
+	@Override
+	public void deleteTransaction(Long id) {
+
+		transactionRepo.deleteById(id);
+
+	}
+	
+	@Transactional
+	public Transactions makeTransaction(Transactions transaction) {
+	    CustAccount sender = transaction.getFromAccount();
+	    CustAccount receiver = transaction.getToAccount();
+	    BigDecimal amount = transaction.getAmount();
+
+	    if (sender != null) {
+	        sender = custAccRepo.findByAccountNumber(sender.getAccountNumber())
+	                .orElseThrow(() -> new RuntimeException("Sender account not found"));
+	        if (sender.getBalance().compareTo(amount) < 0) {
+	            throw new RuntimeException("Insufficient balance");
+	        }
+	        sender.setBalance(sender.getBalance().subtract(amount));
+	        custAccRepo.save(sender);
+	    }
+
+	    if (receiver != null) {
+	        receiver = custAccRepo.findByAccountNumber(receiver.getAccountNumber())
+	                .orElseThrow(() -> new RuntimeException("Receiver account not found"));
+	        receiver.setBalance(receiver.getBalance().add(amount));
+	        custAccRepo.save(receiver);
+	    }
+
+	    Transactions savedTransaction = transactionRepo.save(transaction);
+
+	    // ====== Cashback offer check logic ======
+	    if (sender != null && sender.getCustomer() != null) {
+	        String customerId = sender.getCustomer().getCustomerId();
+
+	        List<CustOfferAvl> offers = custOfferRepo.findByCustomer_CustomerId(customerId); // custom method you define
+
+	        for (CustOfferAvl offer : offers) {
+	        	OfferandReward AcOffer = offer.getOfferReward();
+	        	if("LEGACY10".equalsIgnoreCase(AcOffer.getOfferCode())) {
+	        		BigDecimal cashback = amount.multiply(BigDecimal.valueOf(2 / 100));
+	        		if (cashback.compareTo(BigDecimal.valueOf(10000)) > 0) {
+	        		    cashback = BigDecimal.valueOf(10000);
+	        		}
+	        		
+
+	                // Create cashback transaction
+	                Transactions cashbackTxn = new Transactions();
+	                cashbackTxn.setFromAccount(null); // CASH
+	                cashbackTxn.setToAccount(sender);
+	                cashbackTxn.setAmount(cashback);
+	                
+	                sender.setBalance(sender.getBalance().add(cashback));
+	                custAccRepo.save(sender);
+
+	                transactionRepo.save(cashbackTxn);
+	                
+	                
+	        	}
+	        }
+	    }
+
+	    return savedTransaction;
+	}
+
+
+
+}

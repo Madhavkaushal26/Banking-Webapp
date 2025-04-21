@@ -1,0 +1,84 @@
+package com.bankapp.banking_system.ServiceImpl;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.bankapp.banking_system.Repository.CustOfferRepo;
+import com.bankapp.banking_system.Repository.CustomerRepo;
+import com.bankapp.banking_system.Repository.OfferandRewardRepo;
+import com.bankapp.banking_system.Service.CustOfferService;
+import com.bankapp.banking_system.entities.CustAccount;
+import com.bankapp.banking_system.entities.CustOfferAvl;
+import com.bankapp.banking_system.entities.Customer;
+import com.bankapp.banking_system.entities.OfferandReward;
+import com.bankapp.banking_system.utils.CustOfferRequest;
+
+@Service
+public class CustOfferServImpl implements CustOfferService {
+
+    @Autowired
+    private CustOfferRepo custOfferRepo;
+
+    @Autowired
+    private CustomerRepo customerRepo;
+
+    @Autowired
+    private OfferandRewardRepo offerRepo;
+
+    @Override
+    public CustOfferAvl saveCustomerOffer(CustOfferRequest request) {
+        Customer customer = customerRepo.findByCustomerId(request.getCustomerId())
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        OfferandReward offer = offerRepo.findByOfferCode(request.getOfferCode())
+                .orElseThrow(() -> new RuntimeException("Offer not found"));
+
+        CustOfferAvl custOffer = new CustOfferAvl();
+        custOffer.setCustomer(customer);
+        custOffer.setOfferReward(offer);
+        
+        String offerCode = savedOffer.getOfferReward().getOfferCode();
+        Customer customer2 = savedOffer.getCustomer();
+
+        List<CustAccount> accounts = custAccRepo.findByCustomer_CustomerId(customer2.getCustomerId());
+
+        for (CustAccount account : accounts) {
+            if ("WOMEN_FIN24".equalsIgnoreCase(offerCode)) {
+                if ("Savings".equals(account.getAccountType())) {
+                    account.setInterest(8);
+                } else if ("Current".equals(account.getAccountType())) {
+                    account.setInterest(2);
+                }
+            } else if ("YOUTH_24".equalsIgnoreCase(offerCode)) {
+                if ("Savings".equals(account.getAccountType())) {
+                    account.setInterest(7);
+                } else if ("Current".equals(account.getAccountType())) {
+                    account.setInterest(2);
+                }
+            }
+
+            custAccRepo.save(account);  // Save updated interest
+        }
+
+
+        return custOfferRepo.save(custOffer);
+    }
+
+    @Override
+    public Optional<CustOfferAvl> getCustomerOfferById(Long id) {
+        return custOfferRepo.findById(id);
+    }
+
+    @Override
+    public List<CustOfferAvl> getOffersByCustomerId(String customerId) {
+        return custOfferRepo.findByCustomer_CustomerId(customerId);
+    }
+
+    @Override
+    public void deleteCustomerOffer(Long id) {
+        custOfferRepo.deleteById(id);
+    }
+}

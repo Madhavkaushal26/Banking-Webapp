@@ -1,8 +1,5 @@
 package com.bankapp.banking_system.entities;
 
-import java.time.LocalDate;
-
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,16 +18,11 @@ public class CustOfferAvl {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id", nullable = false)
+    @JoinColumn(name = "customer_id",referencedColumnName = "customerId" ,nullable = false)
     private Customer customer;
 
     @ManyToOne
-    @JoinColumn(name = "offer_id", nullable = false)
+    @JoinColumn(name = "offerCode",referencedColumnName = "offerCode" ,nullable = false)
     private OfferandReward offerReward;
 
-    @Column(nullable = false)
-    private LocalDate startDate;  // When the customer got the offer
-
-    @Column(nullable = false)
-    private LocalDate endDate;  // When the offer expires
 }

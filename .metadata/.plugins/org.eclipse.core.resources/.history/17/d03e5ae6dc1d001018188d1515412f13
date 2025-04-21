@@ -1,0 +1,30 @@
+
+package com.bankapp.banking_system.utils;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+@Service
+public class FinalUserDetails implements UserDetailsService {
+
+	 @Autowired(required = false)
+	    private CustomUserDetailsService employeeUserDetailsService;
+
+	    @Autowired(required = false)
+	    private CustomerUserDetailsService customerUserDetailsService;
+	    
+	    public UserDetails loadUserByUsername(String username, String role) throws UsernameNotFoundException {
+	        if ("employee".equalsIgnoreCase(role)) {
+	            return employeeUserDetailsService.loadUserByUsername(username);
+	        } else if ("customer".equalsIgnoreCase(role)) {
+	            return customerUserDetailsService.loadUserByUsername(username);
+	        } else {
+	            throw new UsernameNotFoundException("Role not specified or invalid.");
+	        }
+	    }
+
+
+}

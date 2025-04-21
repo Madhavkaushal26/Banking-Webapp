@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,23 +14,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bankapp.banking_system.Service.CustAccService;
+import com.bankapp.banking_system.ServiceImpl.CustAccServImpl;
+import com.bankapp.banking_system.dto.AccCreationRequest;
 import com.bankapp.banking_system.entities.CustAccount;
+import com.bankapp.banking_system.entities.Customer;
 import com.bankapp.banking_system.utils.UnauthorizedAccessException;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/accounts")
 public class CustAccController {
 	
-	private final CustAccService custAccService;
+	private final CustAccServImpl custAccService;
 
-    public CustAccController(CustAccService custAccService) {
+    public CustAccController(CustAccServImpl custAccService) {
         this.custAccService = custAccService;
     }
 
     // Create a new account
     @PostMapping("/create")
-    public ResponseEntity<?> createAccount(@RequestBody CustAccount account) {
+    public ResponseEntity<?> createAccount(@RequestBody AccCreationRequest account) {
     	try {
             CustAccount saved = custAccService.saveAccount(account);
             return ResponseEntity.ok(saved);
@@ -40,10 +44,10 @@ public class CustAccController {
         }
     }
 
-    // Get account by ID
-    @GetMapping("/{id}")
-    public ResponseEntity<CustAccount> getAccountById(@PathVariable Long id) {
-        Optional<CustAccount> account = custAccService.getAccountById(id);
+    // Get customer by accountnumber
+    @GetMapping("/{accountNumber}")
+    public ResponseEntity<Customer> getCustomerByAccountNumber(@PathVariable String accountNumber) {
+        Optional<Customer> account = Optional.of(custAccService.getCustomerByAccountNumber(accountNumber));
         return account.map(ResponseEntity::ok)
                       .orElseGet(() -> ResponseEntity.notFound().build());
     }

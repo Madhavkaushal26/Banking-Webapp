@@ -1,0 +1,112 @@
+/* Ensures the main container and content area maintain consistent size */
+.transaction-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    background: #222;
+    padding: 40px 0;
+}
+
+.transaction-content {
+    background: #222;
+    border-radius: 16px;
+    padding: 40px 32px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+    min-width: 350px;
+    max-width: 700px;
+    width: 100%;
+    box-sizing: border-box;
+    height: auto;
+    /* Let the height adjust but won't shrink */
+    min-height: 400px;
+    /* Minimum height to maintain consistent layout */
+}
+
+h2,
+h3 {
+    color: #fff;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+.form-row,
+.account-select-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+    justify-content: center;
+}
+
+label {
+    color: #fff;
+    font-weight: 500;
+}
+
+input,
+select,
+button {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: none;
+    font-size: 1rem;
+    margin-left: 8px;
+}
+
+button {
+    background: #4a90e2;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+button:hover {
+    background: #357ab8;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    margin-top: 16px;
+}
+
+.transaction-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    background: transparent;
+}
+
+.transaction-table th,
+.transaction-table td {
+    padding: 12px 16px;
+    background: #333;
+    color: #fff;
+    border-radius: 6px;
+    text-align: left;
+}
+
+.transaction-table th {
+    font-weight: bold;
+    background: #444;
+}
+
+@media (max-width: 600px) {
+
+    /* Adjusting padding and form layout for smaller screens */
+    .transaction-content {
+        padding: 20px 8px;
+    }
+
+    .form-row,
+    .account-select-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .transaction-table th,
+    .transaction-table td {
+        padding: 8px 6px;
+    }
+}

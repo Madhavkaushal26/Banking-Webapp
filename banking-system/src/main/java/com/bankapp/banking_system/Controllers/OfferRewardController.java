@@ -1,11 +1,11 @@
 package com.bankapp.banking_system.Controllers;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,16 +14,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bankapp.banking_system.Service.OfferRewardService;
 import com.bankapp.banking_system.ServiceImpl.OfferRewardServImpl;
 import com.bankapp.banking_system.entities.OfferandReward;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/offers")
 public class OfferRewardController {
 	
 	@Autowired
-    private OfferRewardService offerRewardService;
+    private OfferRewardServImpl offerRewardService;
 
     // Add a new offer
     @PostMapping
@@ -40,7 +40,7 @@ public class OfferRewardController {
     }
 
     // Get all offers
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<OfferandReward>> getAllOffers() {
         List<OfferandReward> offers = offerRewardService.getAllOffers();
         return ResponseEntity.ok(offers);
@@ -52,26 +52,12 @@ public class OfferRewardController {
         offerRewardService.deleteOffer(id);
         return ResponseEntity.noContent().build();
     }
-    
- // Get eligible offers for all customers
-    @GetMapping("/eligible/all")
-    public ResponseEntity<Map<Long, List<OfferandReward>>> getEligibleOffersForAllCustomers() {
-        if (offerRewardService instanceof OfferRewardServImpl) {
-            Map<Long, List<OfferandReward>> result = ((OfferRewardServImpl) offerRewardService).evaluateEligibleOffers();
-            return ResponseEntity.ok(result);
-        }
-        return ResponseEntity.status(500).build();
-    }
 
     // Get eligible offers for a specific customer
     @GetMapping("/eligible/{customerId}")
-    public ResponseEntity<List<OfferandReward>> getEligibleOffersForCustomer(@PathVariable Long customerId) {
-        if (offerRewardService instanceof OfferRewardServImpl) {
-            Map<Long, List<OfferandReward>> result = ((OfferRewardServImpl) offerRewardService).evaluateEligibleOffers();
-            List<OfferandReward> offers = result.getOrDefault(customerId, List.of());
-            return ResponseEntity.ok(offers);
-        }
-        return ResponseEntity.status(500).build();
+    public ResponseEntity<List<OfferandReward>> getEligibleOffers(@PathVariable String customerId) {
+        List<OfferandReward> eligibleOffers = offerRewardService.evaluateOffersForCustomer(customerId);
+        return ResponseEntity.ok(eligibleOffers);
     }
 
 

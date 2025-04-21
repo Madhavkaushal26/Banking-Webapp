@@ -1,0 +1,13 @@
+package com.bankapp.banking_system.dto;
+
+import java.math.BigDecimal;
+
+public class TransactionRequest {
+
+    private String senderAccountNumber;
+    private String receiverAccountNumber;
+    private BigDecimal amount;
+    private String pin; // Add the PIN here (it will be checked in the backend)
+
+    // Getters and Setters
+}

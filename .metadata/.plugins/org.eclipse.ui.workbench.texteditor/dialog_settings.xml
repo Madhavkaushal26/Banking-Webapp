@@ -4,6 +4,7 @@
 	<section name="java.lang.Class">
 		<item key="replaceBarOpen" value="true"/>
 		<list key="findhistory">
+			<item value="loadUserByUsername"/>
 			<item value="customerService"/>
 			<item value="customerRepository"/>
 		</list>

@@ -1,0 +1,74 @@
+package com.bankapp.banking_system.utils;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/auth")
+public class AuthController {
+
+    @Autowired
+    private AuthenticationManager employeeAuthManager;
+
+    @Autowired
+    private CustomerUserDetailsService customerUserDetailsService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @PostMapping("/login") // Employee login
+    public ResponseEntity<String> login(@RequestBody AuthRequest authRequest) {
+        try {
+            Authentication authentication = employeeAuthManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                    authRequest.getUsername(),
+                    authRequest.getPassword()
+                )
+            );
+
+            if (authentication.isAuthenticated()) {
+                return ResponseEntity.ok("Employee login successful");
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Employee login failed");
+            }
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect employee credentials");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Authentication error");
+        }
+    }
+
+    @PostMapping("/customer/login") // Customer login
+    public ResponseEntity<String> customerLogin(@RequestBody AuthRequest loginRequest) {
+        try {
+            var userDetails = customerUserDetailsService.loadUserByUsername(loginRequest.getUsername());
+
+            if (!passwordEncoder.matches(loginRequest.getPassword(), userDetails.getPassword())) {
+                throw new BadCredentialsException("Invalid customer credentials");
+            }
+
+            UsernamePasswordAuthenticationToken authenticationToken = 
+                new UsernamePasswordAuthenticationToken(
+                    userDetails.getUsername(), 
+                    userDetails.getPassword(), 
+                    userDetails.getAuthorities()
+                );
+
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+            return ResponseEntity.ok("Customer login successful");
+
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid customer credentials");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Authentication error");
+        }
+    }
+}

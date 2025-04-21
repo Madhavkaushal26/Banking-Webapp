@@ -1,7 +1,0 @@
-package com.bankapp.banking_system.Repository;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-
-public interface EmployeeRepo extends JpaRepository<T, ID> {
-
-}

@@ -1,17 +1,19 @@
 package com.bankapp.banking_system.ServiceImpl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import com.bankapp.banking_system.Repository.CustOfferRepo;
+import com.bankapp.banking_system.Repository.CustomerRepo;
 import com.bankapp.banking_system.Repository.OfferandRewardRepo;
 import com.bankapp.banking_system.Service.OfferRewardService;
+import com.bankapp.banking_system.entities.CustOfferAvl;
+import com.bankapp.banking_system.entities.Customer;
 import com.bankapp.banking_system.entities.OfferandReward;
 
 
@@ -20,6 +22,12 @@ public class OfferRewardServImpl implements OfferRewardService {
 	
 	@Autowired
 	private OfferandRewardRepo offerrewardRepo;
+	
+	@Autowired
+    private CustOfferRepo custOfferRepo;
+	
+	@Autowired
+	private CustomerRepo customerRepo;
 	
 	@Autowired
     private JdbcTemplate jdbcTemplate;
@@ -48,27 +56,33 @@ public class OfferRewardServImpl implements OfferRewardService {
 		offerrewardRepo.deleteById(id);
 
 	}
-	public Map<Long, List<OfferandReward>> evaluateEligibleOffers() {
-        Map<Long, List<OfferandReward>> customerOfferMap = new HashMap<>();
-        List<OfferandReward> offers = offerrewardRepo.findAll();
+	
+	public List<OfferandReward> evaluateOffersForCustomer(String customerId) {
+	    Customer customer = customerRepo.findByCustomerId(customerId)
+	            .orElseThrow(() -> new RuntimeException("Customer not found"));
 
-        for (OfferandReward offer : offers) {
-            String query = offer.getOfferQuery();
-            try {
-                List<Long> customerIds = jdbcTemplate.queryForList(query, Long.class);
+	    List<OfferandReward> allOffers = offerrewardRepo.findAll();
+	    List<CustOfferAvl> alreadyAvailedOffers = custOfferRepo.findByCustomer_CustomerId(customerId);
 
-                for (Long custId : customerIds) {
-                    customerOfferMap
-                        .computeIfAbsent(custId, k -> new ArrayList<>())
-                        .add(offer);
-                }
-            } catch (Exception e) {
-                System.out.println("Error running query for offer ID " + offer.getId() + ": " + e.getMessage());
-            }
-        }
+	    return allOffers.stream().filter(offer -> {
+	        String query = offer.getOfferQuery(); // dynamic SQL for eligibility
+	        System.out.println(query);
+	        try {
+	            List<String> eligibleCustomerIds = jdbcTemplate.queryForList(query, String.class);
 
-        return customerOfferMap;
-    }
+	            boolean isEligible = eligibleCustomerIds.contains(customerId);
+	            boolean alreadyAvailed = alreadyAvailedOffers.stream()
+	                    .anyMatch(o -> o.getOfferReward().getOfferCode().equals(offer.getOfferCode()));
+
+	            return isEligible && !alreadyAvailed;
+	        } catch (Exception e) {
+	            System.out.println("Error running query for offer: " + offer.getOfferCode());
+	            e.printStackTrace();
+	            return false;
+	        }
+	    }).collect(Collectors.toList());
+	}
+
 	
 
 }

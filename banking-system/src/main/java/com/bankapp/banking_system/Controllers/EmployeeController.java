@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bankapp.banking_system.Repository.EmployeeRepo;
 import com.bankapp.banking_system.entities.Employee;
 
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/admin")
 public class EmployeeController {
@@ -33,10 +35,6 @@ public class EmployeeController {
 
     @PostMapping("/create")
     public ResponseEntity<String> createEmployee(@RequestBody Employee employee) {
-        if (employeeRepository.existsById(employee.getEmployeeId())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Employee ID already exists");
-        }
-
         // Encrypt password
         employee.setPassword(passwordEncoder.encode(employee.getPassword())); // Handles encryption inside the setter
 

@@ -1,0 +1,81 @@
+/* Ensuring full height background color */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #121212; /* Apply background color to the entire page */
+    color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Centering the login container */
+  .login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;  /* Full height of the viewport */
+    width: 100%;
+    max-width: 400px; /* Optional: max width for the login form */
+    padding: 20px;
+    background-color: #121212; /* Ensure background color is set for the container */
+  }
+  
+  /* Title styling */
+  .login-title {
+    margin-bottom: 20px;
+    font-size: 28px;
+    color: #fff;
+  }
+  
+  /* Form styling */
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    padding: 20px;
+    background-color: #1f1f1f;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #00000050;
+  }
+  
+  /* Form group styling */
+  .form-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Input styling */
+  .form-input {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+    margin-top: 5px;
+  }
+  
+  /* Radio group styling */
+  .radio-group {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  /* Login button styling */
+  .login-button {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .login-button:hover {
+    background-color: #388e3c;
+  }
+  

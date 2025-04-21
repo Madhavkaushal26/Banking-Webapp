@@ -25,11 +25,11 @@ public class Transactions {
     private Long id;
 	
 	@ManyToOne
-    @JoinColumn(name = "Sender", nullable = false) // Sender's account 
+    @JoinColumn(name = "Sender",referencedColumnName = "accountNumber", nullable = false) // Sender's account 
     private CustAccount fromAccount;
 
     @ManyToOne
-    @JoinColumn(name = "Receiver", nullable = false) // Receiver's account 
+    @JoinColumn(name = "Receiver",referencedColumnName = "accountNumber", nullable = false) // Receiver's account 
     private CustAccount toAccount;
     
 

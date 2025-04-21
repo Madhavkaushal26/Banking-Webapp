@@ -1,5 +1,0 @@
-package com.bankapp.banking_system.dto;
-
-public class AuthRequest {
-
-}

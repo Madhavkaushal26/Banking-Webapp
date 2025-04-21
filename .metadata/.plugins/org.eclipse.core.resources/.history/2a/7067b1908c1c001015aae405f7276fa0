@@ -1,0 +1,72 @@
+package com.bankapp.banking_system.entities;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
+
+import com.bankapp.banking_system.utils.AccountNumGenerator;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.Data;
+
+@Entity
+@Table(name = "custAccount")
+@Data
+public class CustAccount {
+	
+	
+	@ManyToOne
+	@JoinColumn(name = "customer_id")
+	@JsonBackReference
+	private Customer customer;
+	
+	@Id
+	 @Column(unique = true, nullable = false, length = 14)
+	 private String accountNumber;
+	
+	 @Column(name = "Type", nullable = false)
+	 private String accountType;
+	 
+	 @Column(name = "Balance", nullable = false)
+	 private BigDecimal balance;
+	
+	@Column(name = "nominee")
+	private long nomi_id; // would save customer id of the nominee
+	
+	@Column(name = "CreationDate",nullable = false)
+	private LocalDate date;
+	
+	@Column(name = "interest",nullable = false)
+	private int interest;
+	
+	@PrePersist
+    protected void generateAccountNumber() {
+            this.accountNumber = AccountNumGenerator.generateAccountNumber();
+            this.date = LocalDate.now();
+    }
+	
+	@Column(nullable = false)
+    private String encryptedPin; // Store encrypted PIN
+	private static final Argon2PasswordEncoder encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+
+    // Setter for PIN (Encryption)
+    public void setPin(String pin) {
+        if (!pin.startsWith("$argon2id$")) { // Prevent double encryption
+            this.encryptedPin = encoder.encode(pin);
+        }
+    }
+
+    // Method to verify PIN (For Authentication)
+    public boolean verifyPin(String rawPin) {
+        return encoder.matches(rawPin, this.encryptedPin);
+    }
+	
+}

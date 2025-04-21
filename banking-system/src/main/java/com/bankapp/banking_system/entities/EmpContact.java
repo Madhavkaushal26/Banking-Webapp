@@ -1,5 +1,7 @@
 package com.bankapp.banking_system.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -15,6 +17,7 @@ public class EmpContact {
 	
 	@ManyToOne
     @JoinColumn(name = "employee_id")
+	@JsonBackReference
     private Employee employee;
 	
 	@Column(name = "email",length = 255)
